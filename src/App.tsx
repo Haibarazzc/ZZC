@@ -50,6 +50,19 @@ function ReadingProgress() {
   return <div className="reading-progress" ref={bar} aria-hidden="true"/>
 }
 
+function VisitCounter() {
+  useEffect(()=>{
+    const win=window as any
+    if(win.__bszLoaded)return
+    win.__bszLoaded=true
+    const s=document.createElement('script')
+    s.src='https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js'
+    s.async=true
+    document.head.appendChild(s)
+  },[])
+  return <span id="busuanzi_container_site_pv" className="visit-count">访问次数 <span id="busuanzi_value_site_pv">0</span></span>
+}
+
 function MagneticLink({href, children}:{href:string, children:React.ReactNode}) {
   const x=useMotionValue(0),y=useMotionValue(0)
   const sx=useSpring(x,{stiffness:190,damping:20,mass:.45}),sy=useSpring(y,{stiffness:190,damping:20,mass:.45})
@@ -229,7 +242,7 @@ function App() {
     <section className="beyond old-section" id="beyond"><div className="old-container"><header className="old-section-head reveal"><h2>判断、步伐与风，<br/>组成学习之外的节奏。</h2></header><div className="old-interest-grid"><InterestCard kind="go" label="围棋 · 业余二段" title="围棋" text="围棋训练我在复杂局面中计算与判断：什么时候继续争取，什么时候接受取舍，又如何让局部选择服务于全局。业余二段，是耐心、复盘与长期练习留下的一枚坐标。" onOpen={()=>setActiveInterest('go')}/><InterestCard kind="hiking" label="徒步 · 短途" title="徒步" text="目前我的徒步主要是日常短途运动。我喜欢步行时稳定的节奏，也喜欢在城市之外感受更开阔的自然空间；未来希望在条件允许时逐渐拓展体验。" onOpen={()=>setActiveInterest('hiking')}/><InterestCard kind="cycling" label="骑行 · 日常节奏" title="骑行" text="骑行目前是短途与日常运动的一部分。速度不必很快、距离也不必很远；道路的变化、移动的节奏与迎面的风，足以让普通的一天变得更清醒。" onOpen={()=>setActiveInterest('cycling')}/><InterestCard kind="cube" label="魔方 · 空间思维" title="魔方" text="魔方让我在有限规则中观察不断变化的空间关系。拆解和复原既要记住局部变化，也要理解每一步对整体结构的影响，是一种可以触摸和验证的思维练习。" onOpen={()=>setActiveInterest('cube')}/></div></div></section>
 
     {activeInterest&&<motion.div className="interest-modal" initial={{opacity:0}} animate={{opacity:1}} role="dialog" aria-modal="true" onClick={()=>setActiveInterest(null)}><motion.div initial={{y:25,opacity:0}} animate={{y:0,opacity:1}} onClick={e=>e.stopPropagation()}><button onClick={()=>setActiveInterest(null)} aria-label="关闭"><X/></button><span>{interestDetails[activeInterest].label}</span><h3>{interestDetails[activeInterest].title}</h3><p>{interestDetails[activeInterest].text}</p></motion.div></motion.div>}    <section className="future section" id="future"><div className="future-horizon" aria-hidden="true"><i/><i/></div><p>下一坐标</p><h2>旅程仍在<br/><em>继续。</em></h2><div className="future-copy"><p>继续学习技术，探索科研，建立可靠的能力；也继续拍摄光影，走进自然。</p><p>不急于给未来一个宏大的结论。<br/>先让每一步真实发生。</p></div><div className="contact-links" aria-label="联系方式"><a href={`mailto:${profile.contact.email}`} aria-label={`发送邮件至 ${profile.contact.email}`}><Mail size={17}/><span>{profile.contact.email}</span><ArrowUpRight size={15}/></a><a href={profile.contact.bilibili} target="_blank" rel="noopener noreferrer" aria-label="哔哩哔哩个人主页"><Video size={17}/><span>哔哩哔哩主页</span><ArrowUpRight size={15}/></a></div><a className="future-return" href="#top">返回起点 <ArrowUpRight size={15}/></a></section>
-    <footer><span>{profile.name} / PORTFOLIO 2026</span><span>SHENZHEN / CHINA</span><span>BUILT FOR THE NEXT CHAPTER</span></footer>
+    <footer><span>{profile.name} / PORTFOLIO 2026</span><span>SHENZHEN / CHINA</span><VisitCounter/><span>BUILT FOR THE NEXT CHAPTER</span></footer>
   </main>
 }
 
