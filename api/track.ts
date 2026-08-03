@@ -17,16 +17,25 @@ function num(v: unknown, lo: number, hi: number): number {
 async function persistEvent(json: string): Promise<void> {
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) return
+  if (!url || !token) {
+    console.log('[track][redis] env missing url=' + (url ? 'set' : 'MISSING') + ' token=' + (token ? 'set' : 'MISSING'))
+    return
+  }
   try {
     // Bucket by Beijing date (UTC+8) so daily views match the owner's local day
     const bj = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)
-    await fetch(url.replace(/\/$/, '') + '/rpush/track:' + bj, {
+    const resp = await fetch(url.replace(/\/$/, '') + '/rpush/track:' + bj, {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify([json]),
     })
-  } catch { /* persistence failure must never break tracking */ }
+    if (!resp.ok) {
+      const body = await resp.text().catch(() => '')
+      console.log('[track][redis] rpush failed status=' + resp.status + ' body=' + body.slice(0, 300))
+    }
+  } catch (err) {
+    console.log('[track][redis] rpush error: ' + String(err))
+  }
 }
 
 export default async function handler(req: any, res: any) {
