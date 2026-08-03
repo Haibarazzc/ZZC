@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUpRight, Aperture, BrainCircuit, ChevronLeft, ChevronRi
 import { profile } from './data/profile'
 import { translations, type Language } from './data/translations'
 import SpecularButton from './components/SpecularButton'
+import { initTracker } from './tracker'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -131,6 +132,7 @@ function App() {
     localStorage.setItem('portfolio-theme',theme)
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='light'?'#E6F7FF':'#080a09')
   },[theme])
+  useEffect(()=>{ initTracker() },[])
   useEffect(()=>{
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
     const followCursor = (event: MouseEvent) => {
