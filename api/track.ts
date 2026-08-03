@@ -1,6 +1,7 @@
 // Vercel serverless function: /api/track
-// Collects visitor analytics and writes one JSON log line per event to the function log.
-// IP + user-agent come from request headers; page/referrer/depth/vid come from the frontend body.
+// Collects visitor analytics. Always writes one JSON log line to the function log,
+// and — when Upstash Redis env vars are configured — also persists the event so the
+// on-site viewer (/api/logs) can read it back. Never fails the request if Redis is down.
 
 function parseJSON(s: string): Record<string, unknown> {
   try { return JSON.parse(s) } catch { return {} }
@@ -13,7 +14,22 @@ function num(v: unknown, lo: number, hi: number): number {
   return Number.isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n))) : lo
 }
 
-export default function handler(req: any, res: any) {
+async function persistEvent(json: string): Promise<void> {
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (!url || !token) return
+  try {
+    // Bucket by Beijing date (UTC+8) so daily views match the owner's local day
+    const bj = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)
+    await fetch(url.replace(/\/$/, '') + '/rpush/track:' + bj, {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify([json]),
+    })
+  } catch { /* persistence failure must never break tracking */ }
+}
+
+export default async function handler(req: any, res: any) {
   // Server-derived fields (headers) — Vercel guarantees the real client IP first
   const ip = str(req.headers['x-vercel-forwarded-for'] || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || '', 64).split(',')[0].trim()
   const ua = str(req.headers['user-agent'], 512)
@@ -40,7 +56,9 @@ export default function handler(req: any, res: any) {
     referer,
   }
 
-  console.log('[track] ' + JSON.stringify(event))
+  const json = JSON.stringify(event)
+  console.log('[track] ' + json)
+  await persistEvent(json)
   res.statusCode = 204
   res.end()
 }
