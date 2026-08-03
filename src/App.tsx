@@ -36,6 +36,20 @@ function LightTrail() {
   return <div className="trail-rail" aria-hidden="true"><div ref={dot} className="exploration-dot"/></div>
 }
 
+function ReadingProgress() {
+  const bar=useRef<HTMLDivElement>(null)
+  useEffect(()=>{
+    const el=bar.current
+    if(!el)return
+    const update=()=>{const d=document.documentElement,m=d.scrollHeight-d.clientHeight;el.style.transform=`scaleX(${m>0?d.scrollTop/m:0})`}
+    update()
+    addEventListener('scroll',update,{passive:true})
+    addEventListener('resize',update)
+    return()=>{removeEventListener('scroll',update);removeEventListener('resize',update)}
+  },[])
+  return <div className="reading-progress" ref={bar} aria-hidden="true"/>
+}
+
 function MagneticLink({href, children}:{href:string, children:React.ReactNode}) {
   const x=useMotionValue(0),y=useMotionValue(0)
   const sx=useSpring(x,{stiffness:190,damping:20,mass:.45}),sy=useSpring(y,{stiffness:190,damping:20,mass:.45})
@@ -188,6 +202,7 @@ function App() {
   },[language,activeInterest,activePhoto])
   return <main>
     <IntroOverlay/>
+    <ReadingProgress/>
     <div className="site-atmosphere" aria-hidden="true"/><div className="cursor-glow"/>
     <header className="nav"><a href="#top" className="brand"><CircleDot size={16}/> EXPLORATION / 2026</a><div className="nav-controls"><button className="theme-switch" onClick={()=>setTheme(theme==='dark'?'light':'dark')} aria-label={theme==='dark'?'Switch to daylight mode':'Switch to night mode'} aria-pressed={theme==='light'} title={theme==='dark'?'Daylight mode':'Night mode'}><span className="theme-switch-track"><Sun size={13}/><Moon size={13}/><i/></span></button><button className="language-switch" onClick={()=>setLanguage(language==='zh'?'en':'zh')} aria-label={language==='zh'?'Switch to English':'切换到中文'}>{language==='zh'?'EN':'中文'}</button></div><button className="menu-btn" onClick={()=>setMenu(!menu)} aria-label="切换导航">{menu?'CLOSE':'INDEX'}</button><nav className={menu?'open':''}>{[['about','关于'],['journey','旅程'],['academic','学术'],['photography','摄影'],['beyond','兴趣']].map(([id,label])=><a key={id} href={`#${id}`} onClick={()=>setMenu(false)}>{label}</a>)}</nav></header>
 
