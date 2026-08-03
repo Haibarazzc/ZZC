@@ -1,13 +1,20 @@
-// Vercel serverless function: /api/track (CommonJS — reliable with "type": "module" projects)
+// Vercel serverless function: /api/track
 // Collects visitor analytics. Always writes one JSON log line to the function log,
 // and — when Upstash Redis env vars are configured — also persists the event so the
 // on-site viewer (/api/logs) can read it back. Never fails the request if Redis is down.
 
-function parseJSON(s) { try { return JSON.parse(s) } catch { return {} } }
-function str(v, max) { return String(v ?? '').slice(0, max) }
-function num(v, lo, hi) { const n = Number(v); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n))) : lo }
+function parseJSON(s: string): Record<string, unknown> {
+  try { return JSON.parse(s) } catch { return {} }
+}
+function str(v: unknown, max: number): string {
+  return String(v ?? '').slice(0, max)
+}
+function num(v: unknown, lo: number, hi: number): number {
+  const n = Number(v)
+  return Number.isFinite(n) ? Math.min(hi, Math.max(lo, Math.round(n))) : lo
+}
 
-async function persistEvent(json) {
+async function persistEvent(json: string): Promise<void> {
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
   if (!url || !token) return
@@ -22,7 +29,7 @@ async function persistEvent(json) {
   } catch { /* persistence failure must never break tracking */ }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req: any, res: any) {
   // Server-derived fields (headers) — Vercel guarantees the real client IP first
   const ip = str(req.headers['x-vercel-forwarded-for'] || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || '', 64).split(',')[0].trim()
   const ua = str(req.headers['user-agent'], 512)
@@ -30,9 +37,11 @@ module.exports = async function handler(req, res) {
 
   // Client-sent fields (body: application/json object, or sendBeacon's text/plain JSON string; query params as fallback)
   const url = new URL(req.url || '/', 'http://localhost')
-  const query = {}
+  const query: Record<string, unknown> = {}
   url.searchParams.forEach((v, k) => { query[k] = v })
-  const body = typeof req.body === 'string' ? parseJSON(req.body) : (req.body && typeof req.body === 'object' ? req.body : {})
+  const body = typeof req.body === 'string'
+    ? parseJSON(req.body)
+    : (req.body && typeof req.body === 'object' ? req.body : {})
   const src = { ...query, ...body }
 
   const event = {
