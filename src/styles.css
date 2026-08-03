@@ -384,6 +384,15 @@ html,body,.site-atmosphere,.nav,.old-section,.gallery-wrap,footer{transition:bac
 :root[data-theme='light'] .gallery-lead p,:root[data-theme='light'] .photo-card figcaption{color:#527795}
 .gallery-lead .gallery-credit{display:block;margin-top:30px;color:#a4aab8;font:9px/1.7 DM Mono;letter-spacing:.14em;font-style:normal}
 :root[data-theme='light'] .gallery-lead .gallery-credit{color:#4a7191}
+.photo-card.video-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;cursor:pointer}
+.photo-card.video-card .video-card-media{width:100%;height:63vh;display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:radial-gradient(circle at 50% 44%,rgba(114,187,143,.16),rgba(13,16,27,.66) 52%,transparent 78%),linear-gradient(145deg,rgba(25,31,50,.55),rgba(9,11,16,.88));color:#dfe6f5;transition:border-color .45s,box-shadow .45s,color .45s}
+.photo-card.video-card:hover .video-card-media{border-color:rgba(114,187,143,.48);box-shadow:0 34px 85px rgba(0,0,0,.4),0 0 34px rgba(100,165,128,.14);color:#fff}
+.photo-card.video-card .video-card-cap{display:flex;justify-content:space-between;align-items:baseline;margin-top:15px;font:10px DM Mono;color:#9c9490;letter-spacing:.08em}
+.photo-card.video-card .video-card-cap p{margin:0}
+:root[data-theme='light'] .photo-card.video-card .video-card-media{border-color:rgba(56,139,212,.2);background:radial-gradient(circle at 50% 44%,rgba(90,170,255,.18),rgba(215,240,255,.5) 55%,transparent 80%),linear-gradient(145deg,#fff,rgba(213,240,255,.7));color:#1c4665}
+:root[data-theme='light'] .photo-card.video-card:hover .video-card-media{border-color:rgba(56,139,212,.5);box-shadow:0 30px 80px rgba(39,99,146,.16);color:#173b57}
+:root[data-theme='light'] .photo-card.video-card .video-card-cap{color:#527795}
+@media(max-width:768px){.photo-card.video-card .video-card-media{height:58vh}}
 :root[data-theme='light'] .photo-card img{background:#dff2ff;box-shadow:0 30px 80px rgba(39,99,146,.13)}
 :root[data-theme='light'] .photo-card:focus-visible{box-shadow:0 0 0 2px #388bd4}
 :root[data-theme='light'] .photo-modal{background:rgba(230,247,255,.94)}

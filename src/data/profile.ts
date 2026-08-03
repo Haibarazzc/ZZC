@@ -5,6 +5,7 @@ export const profile = {
   contact: {
     github: 'https://github.com/Haibarazzc',
     email: '1071620178@qq.com',
+    bilibili: 'https://space.bilibili.com/3494376338623054',
   },
   intro: '从深圳红岭中学到南方科技大学，我在数学的确定性与未知世界的开放性之间，寻找自己的坐标。',
   keywords: [
