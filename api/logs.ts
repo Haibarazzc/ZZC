@@ -38,16 +38,13 @@ export default async function handler(req: any, res: any) {
     const resp = await fetch(redisUrl.replace(/\/$/, '') + `/lrange/track:${day}/-${limit}/-1`, {
       headers: { Authorization: 'Bearer ' + redisToken },
     })
-    if (!resp.ok) {
-      const body = await resp.text().catch(() => '')
-      console.log('[logs][redis] lrange failed status=' + resp.status + ' body=' + body.slice(0, 300))
-      events = []
-    } else {
-      const data = await resp.json() as { result?: string[] }
-      events = (data.result || [])
-        .map((s) => { try { return JSON.parse(s) } catch { return null } })
-        .filter(Boolean)
-    }
+    const raw = await resp.text().catch(() => '')
+    console.log('[logs][redis] lrange status=' + resp.status + ' raw=' + raw.slice(0, 800))
+    let data: any = null
+    try { data = JSON.parse(raw) } catch { /* non-JSON */ }
+    events = Array.isArray(data && data.result)
+      ? data.result.map((s: string) => { try { return JSON.parse(s) } catch { return null } }).filter(Boolean)
+      : []
   } catch (err) {
     console.log('[logs][redis] lrange error: ' + String(err))
     events = []
