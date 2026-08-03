@@ -46,6 +46,7 @@ export default async function handler(req: any, res: any) {
   const limit = 200
 
   let events: any[] = []
+  let diag = 'date=' + day
   try {
     // Upstash REST expects a command array: ["LRANGE", key, start, stop]
     const resp = await fetch(redisUrl.replace(/\/$/, ''), {
@@ -54,13 +55,16 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify(['LRANGE', 'track:' + day, '-' + limit, '-1']),
     })
     const raw = await resp.text().catch(() => '')
+    diag += ' status=' + resp.status + ' raw=' + raw.slice(0, 600)
     console.log('[logs][redis] lrange status=' + resp.status + ' raw=' + raw.slice(0, 800))
     let data: any = null
     try { data = JSON.parse(raw) } catch { /* non-JSON */ }
     events = Array.isArray(data && data.result)
       ? data.result.map((s: string) => parseEvent(s)).filter(Boolean)
       : []
+    if (events.length === 0) diag += ' result=' + JSON.stringify((data && data.result) || null)
   } catch (err) {
+    diag += ' error=' + String(err)
     console.log('[logs][redis] lrange error: ' + String(err))
     events = []
   }
@@ -106,6 +110,7 @@ export default async function handler(req: any, res: any) {
   .empty{color:#7a818b;text-align:center;padding:40px 0}
   .count{color:#72bb8f;font-weight:600}
   footer{margin-top:24px;color:#5b626d;font-size:12px}
+  .diag{margin-top:12px;color:#c98b8b;font:11px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-all}
 </style></head><body><div class="wrap">
   <h1>访问日志</h1>
   <div class="sub">${day} · 最近 ${events.length} 条事件（如需更早日期，改 URL 里的 date=YYYY-MM-DD）</div>
@@ -114,6 +119,6 @@ export default async function handler(req: any, res: any) {
     <thead><tr><th>#</th><th>时间</th><th>类型</th><th>IP</th><th>User-Agent</th><th>页面</th><th>Referrer</th><th>深度%</th><th>会话</th></tr></thead>
     <tbody>${rows || `<tr><td colspan="9" class="empty">${day} 暂无记录</td></tr>`}</tbody>
   </table></div>
-  <footer>追踪端点 /api/track 已写入 console 日志与 Redis；本页仅对持有密钥的人可见。</footer>
+  <footer>追踪端点 /api/track 已写入 console 日志与 Redis；本页仅对持有密钥的人可见。${events.length === 0 ? `<pre class="diag">${esc(diag)}</pre>` : ''}</footer>
 </div></body></html>`)
 }
