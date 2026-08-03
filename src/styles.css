@@ -382,6 +382,8 @@ html,body,.site-atmosphere,.nav,.old-section,.gallery-wrap,footer{transition:bac
 :root[data-theme='light'] .gallery-wrap{background:#dff2ff!important}
 :root[data-theme='light'] .gallery-lead span{color:#173b57}
 :root[data-theme='light'] .gallery-lead p,:root[data-theme='light'] .photo-card figcaption{color:#527795}
+.gallery-lead .gallery-credit{display:block;margin-top:30px;color:#a4aab8;font:9px/1.7 DM Mono;letter-spacing:.14em;font-style:normal}
+:root[data-theme='light'] .gallery-lead .gallery-credit{color:#4a7191}
 :root[data-theme='light'] .photo-card img{background:#dff2ff;box-shadow:0 30px 80px rgba(39,99,146,.13)}
 :root[data-theme='light'] .photo-card:focus-visible{box-shadow:0 0 0 2px #388bd4}
 :root[data-theme='light'] .photo-modal{background:rgba(230,247,255,.94)}
