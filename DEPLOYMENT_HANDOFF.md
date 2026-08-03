@@ -177,12 +177,12 @@ Fix: recreate it with `.NET ZipArchive`, normalize every entry name with `.Repla
 
 ## Last verified package
 
-`D:\个人介绍3\zzcspace-upload-v2.zip`
+`D:\个人介绍3\zzcspace-upload-v11.zip`
 
 Verification result:
 
 ```text
-ENTRY_COUNT=21
+ENTRY_COUNT=22
 ROOT_INDEX=True
 BACKSLASH_ENTRIES=0
 ```
