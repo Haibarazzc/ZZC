@@ -238,6 +238,12 @@ main{background:linear-gradient(180deg,rgba(3,5,11,.08),rgba(5,7,13,.2))}
 .old-metric-grid article:nth-of-type(3){transform:translateY(-8px)}
 .old-metric-grid article:hover{background:linear-gradient(145deg,rgba(35,67,52,.74),rgba(12,14,19,.82))!important;transform:translateY(-4px)}
 .old-metric-grid article:nth-of-type(2):hover{transform:translateY(26px)}
+.old-metric-grid article:nth-of-type(5){grid-column:span 12;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(12px,2.5vw,30px);min-height:150px;padding:20px 28px}
+.old-metric-grid article:nth-of-type(5) small,.old-metric-grid article:nth-of-type(5) strong{margin:0;flex:none}
+.old-metric-grid article:nth-of-type(5) strong{font-size:clamp(40px,4.5vw,64px)}
+.old-metric-grid article:nth-of-type(5) h3{margin:0}
+.old-metric-grid article:nth-of-type(5) p{margin:0;max-width:380px}
+@media(max-width:768px){.old-metric-grid article:nth-of-type(5){justify-content:flex-start;gap:10px 18px;min-height:0;padding:20px 22px}.old-metric-grid article:nth-of-type(5) strong{font-size:38px}.old-metric-grid article:nth-of-type(5) p{max-width:none;text-align:left}}
 .old-metric-grid strong{color:#eef3ef}
 .photo-title>span,.old-timeline article>span,.interest-card-front>span,.interest-modal span{color:var(--accent)!important}
 .old-timeline:before{background:linear-gradient(var(--accent),rgba(114,187,143,.28),rgba(255,255,255,.04))!important}
