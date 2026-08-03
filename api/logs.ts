@@ -29,6 +29,14 @@ function parseEvent(s: string): any {
     return null
   } catch { return null }
 }
+// Display stored UTC timestamps in Beijing time (UTC+8), matching the date buckets.
+function bjTime(iso: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return esc(iso)
+  const b = new Date(d.getTime() + 8 * 3600 * 1000)
+  return b.toISOString().slice(0, 10) + ' ' + b.toISOString().slice(11, 19)
+}
 
 export default async function handler(req: any, res: any) {
   const url = new URL(req.url || '/', 'http://localhost')
@@ -72,7 +80,7 @@ export default async function handler(req: any, res: any) {
 
   const rows = events.map((e, i) => `<tr>
     <td class="dim">${events.length - i}</td>
-    <td>${esc(e.t || '')}</td>
+    <td>${bjTime(e.t || '')}</td>
     <td><span class="tag t-${esc(e.type || 'view')}">${esc(e.type || '')}</span></td>
     <td class="mono">${esc(e.ip || '')}</td>
     <td title="${esc(e.ua || '')}">${esc(short(e.ua || '', 42))}</td>
@@ -113,7 +121,7 @@ export default async function handler(req: any, res: any) {
   .diag{margin-top:12px;color:#c98b8b;font:11px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-all}
 </style></head><body><div class="wrap">
   <h1>访问日志</h1>
-  <div class="sub">${day} · 最近 ${events.length} 条事件（如需更早日期，改 URL 里的 date=YYYY-MM-DD）</div>
+  <div class="sub">${day}（北京时间）· 最近 ${events.length} 条事件（如需更早日期，改 URL 里的 date=YYYY-MM-DD）</div>
   <div class="nav"><a href="${base}${prev}">← ${prev}</a><span class="cur">${day}</span><a href="${base}${next}">${next} →</a></div>
   <div class="table-wrap"><table>
     <thead><tr><th>#</th><th>时间</th><th>类型</th><th>IP</th><th>User-Agent</th><th>页面</th><th>Referrer</th><th>深度%</th><th>会话</th></tr></thead>
