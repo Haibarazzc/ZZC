@@ -22,12 +22,13 @@ async function persistEvent(json: string): Promise<void> {
     return
   }
   try {
-    // Bucket by Beijing date (UTC+8) so daily views match the owner's local day
+    // Bucket by Beijing date (UTC+8) so daily views match the owner's local day.
+    // Upstash REST expects a command array: ["RPUSH", key, value].
     const bj = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)
-    const resp = await fetch(url.replace(/\/$/, '') + '/rpush/track:' + bj, {
+    const resp = await fetch(url.replace(/\/$/, ''), {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify([json]),
+      body: JSON.stringify(['RPUSH', 'track:' + bj, json]),
     })
     if (!resp.ok) {
       const body = await resp.text().catch(() => '')

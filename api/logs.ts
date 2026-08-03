@@ -17,6 +17,18 @@ function addDays(date: string, n: number): string {
   d.setUTCDate(d.getUTCDate() + n)
   return d.toISOString().slice(0, 10)
 }
+// Tolerate both the correct stored shape ({...}) and the old wrapped shape (["{...}"]).
+function parseEvent(s: string): any {
+  try {
+    const v = JSON.parse(s)
+    if (v && typeof v === 'object' && !Array.isArray(v)) return v
+    if (Array.isArray(v) && v.length >= 1) {
+      const inner = typeof v[0] === 'string' ? JSON.parse(v[0]) : v[0]
+      if (inner && typeof inner === 'object' && !Array.isArray(inner)) return inner
+    }
+    return null
+  } catch { return null }
+}
 
 export default async function handler(req: any, res: any) {
   const url = new URL(req.url || '/', 'http://localhost')
@@ -35,15 +47,18 @@ export default async function handler(req: any, res: any) {
 
   let events: any[] = []
   try {
-    const resp = await fetch(redisUrl.replace(/\/$/, '') + `/lrange/track:${day}/-${limit}/-1`, {
-      headers: { Authorization: 'Bearer ' + redisToken },
+    // Upstash REST expects a command array: ["LRANGE", key, start, stop]
+    const resp = await fetch(redisUrl.replace(/\/$/, ''), {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + redisToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify(['LRANGE', 'track:' + day, '-' + limit, '-1']),
     })
     const raw = await resp.text().catch(() => '')
     console.log('[logs][redis] lrange status=' + resp.status + ' raw=' + raw.slice(0, 800))
     let data: any = null
     try { data = JSON.parse(raw) } catch { /* non-JSON */ }
     events = Array.isArray(data && data.result)
-      ? data.result.map((s: string) => { try { return JSON.parse(s) } catch { return null } }).filter(Boolean)
+      ? data.result.map((s: string) => parseEvent(s)).filter(Boolean)
       : []
   } catch (err) {
     console.log('[logs][redis] lrange error: ' + String(err))
